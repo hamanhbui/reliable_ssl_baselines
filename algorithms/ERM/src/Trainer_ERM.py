@@ -42,6 +42,7 @@ class Trainer_ERM:
         self.model = model_factory.get_model(self.args.model)().to(self.device)
         self.classifier = Classifier(self.args.feature_dim, self.args.n_classes).to(self.device)
         self.nn_softmax = nn.Softmax(dim=1)
+        self.criterion = nn.CrossEntropyLoss()
 
     def set_writer(self, log_dir):
         if not os.path.exists(log_dir):
@@ -106,7 +107,6 @@ class Trainer_ERM:
         optimizer_params = list(self.model.parameters()) + list(self.classifier.parameters())
         self.optimizer = torch.optim.SGD(optimizer_params, lr=self.args.learning_rate, momentum=0.9, nesterov=True)
         self.scheduler = MultiStepLR(self.optimizer, milestones=self.args.decay_interations, gamma=0.2)
-        self.criterion = nn.CrossEntropyLoss()
         self.val_loss_min = np.Inf
         self.val_acc_max = 0
 
@@ -212,21 +212,23 @@ class Trainer_ERM:
                 batch_size=self.args.batch_size,
                 shuffle=True,
             )
-            n_class_corrected, total_ece = 0, 0
+            n_class_corrected, total_ece, total_nll = 0, 0, 0
             with torch.no_grad():
                 for iteration, (samples, labels) in enumerate(self.test_loader):
                     samples, labels = samples.to(self.device), labels.to(self.device)
                     predicted_classes = self.classifier(self.model(samples))
+                    total_nll += self.criterion(predicted_classes, labels).item()
                     predicted_softmaxs = self.nn_softmax(predicted_classes)
                     total_ece += multiclass_calibration_error(predicted_softmaxs, labels, num_classes=10, n_bins=10, norm='l1')
                     _, predicted_classes = torch.max(predicted_classes, 1)
                     n_class_corrected += (predicted_classes == labels).sum().item()
             print(
-                test_path + "\tTest set: Accuracy: {}/{} ({:.2f}%)\tECE: {:.6f}".format(
+                test_path + "\tTest set: Accuracy: {}/{} ({:.2f}%)\tECE: {:.6f}\tNLL: {:.6f}".format(
                     n_class_corrected,
                     len(self.test_loader.dataset),
                     100.0 * n_class_corrected / len(self.test_loader.dataset),
                     total_ece / len(self.test_loader),
+                    total_nll / len(self.test_loader),
                 )
             )
 

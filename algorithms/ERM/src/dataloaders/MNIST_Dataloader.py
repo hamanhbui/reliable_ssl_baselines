@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 
 class MNISTDataloader(Dataset):
     def __init__(self, path, sample_paths, class_labels):
-        self.image_transformer = transforms.Compose([transforms.Resize((33, 33)), transforms.ToTensor()])
+        self.image_transformer = transforms.Compose([transforms.Resize((32, 32)), transforms.ToTensor()])
         self.path = path
         self.sample_paths, self.class_labels = sample_paths, class_labels
 
@@ -25,4 +25,4 @@ class MNISTDataloader(Dataset):
 class MNIST_Test_Dataloader(MNISTDataloader):
     def __init__(self, *args, **xargs):
         super().__init__(*args, **xargs)
-        self.image_transformer = transforms.Compose([transforms.Resize((33, 33)), transforms.ToTensor()])
+        self.image_transformer = transforms.Compose([transforms.Resize((32, 32)), transforms.ToTensor()])

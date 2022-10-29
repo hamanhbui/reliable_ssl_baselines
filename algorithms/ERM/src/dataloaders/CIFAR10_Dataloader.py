@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 class CIFAR10Dataloader(Dataset):
     def __init__(self, path, sample_paths, class_labels):
         self.image_transformer = transforms.Compose(
-            [transforms.Resize((33, 33)),
+            [transforms.Resize((32, 32)),
             transforms.ToTensor(),
             transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))])
         self.path = path
@@ -29,6 +29,6 @@ class CIFAR10_Test_Dataloader(CIFAR10Dataloader):
     def __init__(self, *args, **xargs):
         super().__init__(*args, **xargs)
         self.image_transformer = transforms.Compose(
-            [transforms.Resize((33, 33)),
+            [transforms.Resize((32, 32)),
             transforms.ToTensor(),
             transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))])
