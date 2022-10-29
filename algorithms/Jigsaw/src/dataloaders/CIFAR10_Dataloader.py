@@ -4,6 +4,8 @@ from PIL import Image
 from torch.utils.data import Dataset
 import numpy as np
 import torchvision
+from random import sample, random
+
 
 class CIFAR10Dataloader(Dataset):
     def __init__(self, path, sample_paths, class_labels):
@@ -16,7 +18,7 @@ class CIFAR10Dataloader(Dataset):
             [transforms.Resize((33, 33))])
         self.tile_transformer = transforms.Compose(
             [transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))])
+            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))])
         self.path = path
         self.sample_paths, self.class_labels = sample_paths, class_labels
 
@@ -48,6 +50,8 @@ class CIFAR10Dataloader(Dataset):
             tiles[n] = self.get_tile(sample, n)
 
         order = np.random.randint(len(self.permutations) + 1)  # added 1 for class 0: unsorted
+        if 0.9 > random():
+            order = 0
         if order == 0:
             data = tiles
         else:
@@ -63,8 +67,9 @@ class CIFAR10_Test_Dataloader(CIFAR10Dataloader):
     def __init__(self, *args, **xargs):
         super().__init__(*args, **xargs)
         self.image_transformer = transforms.Compose(
-            [transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))])
+            [transforms.Resize((33, 33)),
+            transforms.ToTensor(),
+            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))])
     
     def __getitem__(self, index):
         sample = self.get_image(self.path + self.sample_paths[index])

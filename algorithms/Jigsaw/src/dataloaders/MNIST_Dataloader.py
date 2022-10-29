@@ -14,7 +14,7 @@ class MNISTDataloader(Dataset):
             return torchvision.utils.make_grid(x, self.grid_size, padding=0)
         self.returnFunc = make_grid
         self.image_transformer = transforms.Compose(
-            [transforms.Resize((27, 27))])
+            [transforms.Resize((33, 33))])
         self.tile_transformer = transforms.Compose(
             [transforms.ToTensor()])
         self.path = path
@@ -65,7 +65,7 @@ class MNISTDataloader(Dataset):
 class MNIST_Test_Dataloader(MNISTDataloader):
     def __init__(self, *args, **xargs):
         super().__init__(*args, **xargs)
-        self.image_transformer = transforms.Compose([transforms.Resize((27, 27)), transforms.ToTensor()])
+        self.image_transformer = transforms.Compose([transforms.Resize((33, 33)), transforms.ToTensor()])
 
     def __getitem__(self, index):
         sample = self.get_image(self.path + self.sample_paths[index])

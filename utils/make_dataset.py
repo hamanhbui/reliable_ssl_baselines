@@ -3,29 +3,32 @@ import tensorflow_datasets as tfds
 import cv2
 import os
 import pandas as pd
-ds_test = tfds.load(
-    name = 'cifar10_corrupted/impulse_noise_5',
+import imutils
+
+ds = tfds.load(
+    name = 'mnist_corrupted/translate',
     split= 'test'
 )
-numpy_items = tfds.as_numpy(ds_test)
+numpy_items = tfds.as_numpy(ds)
 
-test_paths = []
-test_labels = []
+paths = []
+labels = []
 
 for index, item in enumerate(numpy_items):
-    directory = "/home/ubuntu/datasets/CIFAR-10/corruptions/impulse_noise_5/" + str(item['label'])
+    directory = "/home/ubuntu/datasets/MNIST/ood/translate/" + str(item['label'])
     if not os.path.exists(directory):
         os.makedirs(directory)
     path = str(item['label']) + "/te_image_" + str(index) + ".png"
-    cv2.imwrite("/home/ubuntu/datasets/CIFAR-10/corruptions/impulse_noise_5/" + path, item['image'])
-    test_paths.append(path)
-    test_labels.append(item['label'])
+    # item['image'] = imutils.rotate(item['image'], angle=75)
+    cv2.imwrite("/home/ubuntu/datasets/MNIST/ood/translate/" + path, item['image'])
+    paths.append(path)
+    labels.append(item['label'])
 
-test_meta_files = pd.DataFrame({"path": test_paths, "label": test_labels})
-test_meta_files.to_csv(
-    "/home/ubuntu/datasets/CIFAR-10/metadata/impulse_noise_5_kfold.txt",
-    header=None,
-    sep=" ",
-    encoding="utf-8",
-    index=False,
-)
+# meta_files = pd.DataFrame({"path": paths, "label": labels})
+# meta_files.to_csv(
+#     "/home/ubuntu/datasets/MNIST/metadata/motion_blur_kfold.txt",
+#     header=None,
+#     sep=" ",
+#     encoding="utf-8",
+#     index=False,
+# )
