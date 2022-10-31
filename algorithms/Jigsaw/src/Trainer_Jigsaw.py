@@ -17,6 +17,8 @@ from torch.utils.tensorboard import SummaryWriter
 from utils.load_metadata import set_tr_val_samples_labels, set_test_samples_labels
 from torchmetrics.functional.classification import multiclass_calibration_error
 from torch.optim.lr_scheduler import MultiStepLR
+import xlwt
+from xlwt import Workbook
 
 class Classifier(nn.Module):
     def __init__(self, feature_dim, classes):
@@ -203,13 +205,16 @@ class Trainer_Jigsaw:
                 )
 
     def test(self):
+        self.wb = Workbook()
+        sheet = self.wb.add_sheet("test_path")
         test_sample_paths, test_class_labels = set_test_samples_labels(self.args.test_meta_filenames)
         checkpoint = torch.load(self.checkpoint_name + ".pt")
         self.model.load_state_dict(checkpoint["model_state_dict"])
         self.classifier.load_state_dict(checkpoint["classifier_state_dict"])
         self.model.eval()
         self.classifier.eval()
-        for test_path in self.args.test_paths:
+        for i in range(len(self.args.test_paths)):
+            test_path = self.args.test_paths[i]
             self.test_loader = DataLoader(
                 dataloader_factory.get_test_dataloader(self.args.dataset)(
                     path=test_path, sample_paths=test_sample_paths, class_labels=test_class_labels
@@ -227,16 +232,22 @@ class Trainer_Jigsaw:
                     total_ece += multiclass_calibration_error(predicted_softmaxs, labels, num_classes=10, n_bins=10, norm='l1')
                     _, predicted_classes = torch.max(predicted_classes, 1)
                     n_class_corrected += (predicted_classes == labels).sum().item()
+            test_acc =  100.0 * n_class_corrected / len(self.test_loader.dataset)
+            test_ece = round(total_ece.cpu().detach().numpy() / len(self.test_loader), 6)
+            test_nll = round(total_nll / len(self.test_loader), 6)
             print(
                 test_path + "\tTest set: Accuracy: {}/{} ({:.2f}%)\tECE: {:.6f}\tNLL: {:.6f}".format(
                     n_class_corrected,
                     len(self.test_loader.dataset),
-                    100.0 * n_class_corrected / len(self.test_loader.dataset),
-                    total_ece / len(self.test_loader),
-                    total_nll / len(self.test_loader),
+                    test_acc,
+                    test_ece,
+                    test_nll,
                 )
             )
-
+            sheet.write(0, i, test_acc)
+            sheet.write(1, i, test_ece)
+            sheet.write(2, i, test_nll)
+        self.wb.save('xlwt example.xls')
 
     def save_plot(self):
         checkpoint = torch.load(self.checkpoint_name + ".pt")

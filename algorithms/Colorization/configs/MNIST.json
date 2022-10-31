@@ -1,6 +1,6 @@
 {
     "exp_name": "MNIST",
-    "algorithm": "ERM",
+    "algorithm": "Colorization",
     "model": "mnistnet",
     "feature_dim": 84,
     "dataset": "MNIST",

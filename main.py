@@ -7,6 +7,7 @@ import numpy as np
 import torch
 from algorithms.ERM.src.Trainer_ERM import Trainer_ERM
 from algorithms.Jigsaw.src.Trainer_Jigsaw import Trainer_Jigsaw
+from algorithms.Colorization.src.Trainer_Colorization import Trainer_Colorization
 
 
 def fix_random_seed(seed_value):
@@ -22,7 +23,7 @@ def fix_random_seed(seed_value):
         torch.backends.cudnn.deterministic = True
 
 
-algorithms_map = {"ERM": Trainer_ERM, "Jigsaw": Trainer_Jigsaw}
+algorithms_map = {"ERM": Trainer_ERM, "Jigsaw": Trainer_Jigsaw, "Colorization": Trainer_Colorization}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
