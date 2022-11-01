@@ -9,8 +9,8 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from algorithms.Colorization.src.dataloaders import dataloader_factory
-from algorithms.Colorization.src.models import model_factory
+from algorithms.Rotation.src.dataloaders import dataloader_factory
+from algorithms.Rotation.src.models import model_factory
 from scipy.stats import entropy
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
@@ -30,7 +30,7 @@ class Classifier(nn.Module):
         return y
 
 
-class Trainer_Colorization:
+class Trainer_Rotation:
     def __init__(self, args, device, exp_idx):
         self.args = args
         self.device = device
@@ -43,6 +43,7 @@ class Trainer_Colorization:
         )
         self.model = model_factory.get_model(self.args.model)().to(self.device)
         self.classifier = Classifier(self.args.feature_dim, self.args.n_classes).to(self.device)
+        self.rot_classifier = Classifier(self.args.feature_dim, 10).to(self.device)
         self.nn_softmax = nn.Softmax(dim=1)
         self.criterion = nn.CrossEntropyLoss()
 
@@ -106,7 +107,7 @@ class Trainer_Colorization:
                 batch_size=self.args.batch_size,
                 shuffle=True,
             )
-        optimizer_params = list(self.model.parameters()) + list(self.classifier.parameters())
+        optimizer_params = list(self.model.parameters()) + list(self.classifier.parameters()) + list(self.rot_classifier.parameters())
         self.optimizer = torch.optim.SGD(optimizer_params, lr=self.args.learning_rate, momentum=0.9, nesterov=True)
         self.scheduler = MultiStepLR(self.optimizer, milestones=self.args.decay_interations, gamma=0.2)
         self.val_loss_min = np.Inf
@@ -121,16 +122,20 @@ class Trainer_Colorization:
         for iteration in range(self.args.iterations):
             if (iteration % len(self.train_iter_loader)) == 0:
                 self.train_iter_loader = iter(self.train_loader)
-            samples, labels = self.train_iter_loader.next()
-            samples, labels = samples.to(self.device), labels.to(self.device)
+            samples, labels, rot_labels = self.train_iter_loader.next()
+            samples, labels, rot_labels = samples.to(self.device), labels.to(self.device), rot_labels.to(self.device)
+            features = self.model(samples)
             predicted_classes = self.classifier(self.model(samples))
+            predicted_rot_classes = self.rot_classifier(features)
             classification_loss = self.criterion(predicted_classes, labels)
-            total_classification_loss += classification_loss.item()
+            classification_rot_loss = self.criterion(predicted_rot_classes, rot_labels)
+            total_loss = classification_loss + 0.1 * classification_rot_loss
+            total_classification_loss += total_loss.item()
             _, predicted_classes = torch.max(predicted_classes, 1)
             n_class_corrected += (predicted_classes == labels).sum().item()
             total_samples += len(samples)
             self.optimizer.zero_grad()
-            classification_loss.backward()
+            total_loss.backward()
             self.optimizer.step()
             self.scheduler.step()
             if iteration % self.args.step_eval == (self.args.step_eval - 1):
@@ -253,7 +258,7 @@ class Trainer_Colorization:
         Z_train, Y_train, Z_test, Y_test = [], [], [], []
         tr_nlls, tr_entropies, te_nlls, te_entropies = [], [], [], []
         with torch.no_grad():
-            for iteration, (samples, labels) in enumerate(self.train_loader):
+            for iteration, (samples, labels, _) in enumerate(self.train_loader):
                 b, c, h, w = samples.shape
                 samples, labels = samples.to(self.device), labels.to(self.device)
                 z = self.model(samples)

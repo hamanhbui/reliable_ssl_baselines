@@ -1,6 +1,6 @@
-from algorithms.Colorization.src.models.mnistnet import MNIST_CNN
-from algorithms.Colorization.src.models.cifar10net import CIFAR10_CNN
-from algorithms.Colorization.src.models.resnet import Wide_ResNet
+from algorithms.Affine.src.models.mnistnet import MNIST_CNN
+from algorithms.Affine.src.models.cifar10net import CIFAR10_CNN
+from algorithms.Affine.src.models.resnet import Wide_ResNet
 
 
 nets_map = {"mnistnet": MNIST_CNN, "cifar10net": CIFAR10_CNN, "wide_resnet": Wide_ResNet}

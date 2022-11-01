@@ -1,6 +1,6 @@
 {
     "exp_name": "CIFAR10",
-    "algorithm": "Colorization",
+    "algorithm": "Affine",
     "model": "wide_resnet",
     "feature_dim": 640,
     "dataset": "CIFAR10",
