@@ -3,9 +3,9 @@ import torch.nn.functional as F
 from torch import nn
 
 
-class MNIST_CNN(nn.Module):
+class Lenet_5(nn.Module):
     def __init__(self):
-        super(MNIST_CNN, self).__init__()
+        super(Lenet_5, self).__init__()
         self.feature_extractor = nn.Sequential(            
             nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5, stride=1),
             nn.Tanh(),

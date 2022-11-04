@@ -1,7 +1,7 @@
 {
     "exp_name": "MNIST",
     "algorithm": "ERM",
-    "model": "mnistnet",
+    "model": "lenet_5",
     "feature_dim": 84,
     "dataset": "MNIST",
     "seed_value": 1,

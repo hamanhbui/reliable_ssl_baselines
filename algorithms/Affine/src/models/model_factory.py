@@ -1,9 +1,8 @@
-from algorithms.Affine.src.models.mnistnet import MNIST_CNN
-from algorithms.Affine.src.models.cifar10net import CIFAR10_CNN
-from algorithms.Affine.src.models.resnet import Wide_ResNet
+from algorithms.Affine.src.models.lenet_5 import Lenet_5
+from algorithms.Affine.src.models.wide_resnet_28_10 import Wide_Resnet_28_10
 
 
-nets_map = {"mnistnet": MNIST_CNN, "cifar10net": CIFAR10_CNN, "wide_resnet": Wide_ResNet}
+nets_map = {"lenet_5": Lenet_5, "wide_resnet_28_10": Wide_Resnet_28_10}
 
 
 def get_model(name):

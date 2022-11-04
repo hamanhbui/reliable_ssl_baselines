@@ -1,7 +1,7 @@
 {
     "exp_name": "CIFAR10",
     "algorithm": "Jigsaw",
-    "model": "wide_resnet",
+    "model": "wide_resnet_28_10",
     "feature_dim": 640,
     "dataset": "CIFAR10",
     "seed_value": 1,
