@@ -9,8 +9,8 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from algorithms.Jigsaw.src.dataloaders import dataloader_factory
-from algorithms.Jigsaw.src.models import model_factory
+from algorithms.Context.src.dataloaders import dataloader_factory
+from algorithms.Context.src.models import model_factory
 from scipy.stats import entropy
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
@@ -30,7 +30,7 @@ class Classifier(nn.Module):
         return y
 
 
-class Trainer_Jigsaw:
+class Trainer_Context:
     def __init__(self, args, device, exp_idx):
         self.args = args
         self.device = device
@@ -43,7 +43,7 @@ class Trainer_Jigsaw:
         )
         self.model = model_factory.get_model(self.args.model)().to(self.device)
         self.classifier = Classifier(self.args.feature_dim, self.args.n_classes).to(self.device)
-        self.jigsaw_classifier = Classifier(self.args.feature_dim, 31).to(self.device)
+        self.context_classifier = Classifier(self.args.feature_dim * 2, 9).to(self.device)
         self.nn_softmax = nn.Softmax(dim=1)
         self.criterion = nn.CrossEntropyLoss()
 
@@ -107,7 +107,7 @@ class Trainer_Jigsaw:
                 batch_size=self.args.batch_size,
                 shuffle=True,
             )
-        optimizer_params = list(self.model.parameters()) + list(self.classifier.parameters()) + list(self.jigsaw_classifier.parameters())
+        optimizer_params = list(self.model.parameters()) + list(self.classifier.parameters()) + list(self.context_classifier.parameters())
         self.optimizer = torch.optim.SGD(optimizer_params, lr=self.args.learning_rate, momentum=0.9, nesterov=True)
         self.scheduler = MultiStepLR(self.optimizer, milestones=self.args.decay_interations, gamma=0.2)
         self.val_loss_min = np.Inf
@@ -117,20 +117,22 @@ class Trainer_Jigsaw:
         self.init_training()
         self.model.train()
         self.classifier.train()
-        self.jigsaw_classifier.train()
+        self.context_classifier.train()
         n_class_corrected, total_classification_loss, total_samples = 0, 0, 0
         self.train_iter_loader = iter(self.train_loader)
         for iteration in range(self.args.iterations):
             if (iteration % len(self.train_iter_loader)) == 0:
                 self.train_iter_loader = iter(self.train_loader)
-            samples, labels, jigsaw_labels = self.train_iter_loader.next()
-            samples, labels, jigsaw_labels = samples.to(self.device), labels.to(self.device), jigsaw_labels.to(self.device)
+            samples, labels, center_patch, random_patch, context_labels = self.train_iter_loader.next()
+            samples, labels, center_patch, random_patch, context_labels = samples.to(self.device), labels.to(self.device), center_patch.to(self.device), random_patch.to(self.device), context_labels.to(self.device)
             features = self.model(samples)
+            center_patch_features = self.model(center_patch)
+            random_patch_features = self.model(random_patch)
             predicted_classes = self.classifier(features)
-            predicted_jigsaw_classes = self.jigsaw_classifier(features)
+            predicted_context_classes = self.context_classifier(torch.cat((center_patch_features, random_patch_features), 1))
             classification_loss = self.criterion(predicted_classes, labels)
-            classification_jigsaw_loss = self.criterion(predicted_jigsaw_classes, jigsaw_labels)
-            total_loss = classification_loss + 0.1 * classification_jigsaw_loss
+            classification_context_loss = self.criterion(predicted_context_classes, context_labels)
+            total_loss = classification_loss + 0.1 * classification_context_loss
             total_classification_loss += total_loss.item()
             _, predicted_classes = torch.max(predicted_classes, 1)
             n_class_corrected += (predicted_classes == labels).sum().item()
@@ -259,7 +261,7 @@ class Trainer_Jigsaw:
         Z_train, Y_train, Z_test, Y_test = [], [], [], []
         tr_nlls, tr_entropies, te_nlls, te_entropies = [], [], [], []
         with torch.no_grad():
-            for iteration, (samples, labels, _) in enumerate(self.train_loader):
+            for iteration, (samples, labels, _, _, _) in enumerate(self.train_loader):
                 b, c, h, w = samples.shape
                 samples, labels = samples.to(self.device), labels.to(self.device)
                 z = self.model(samples)

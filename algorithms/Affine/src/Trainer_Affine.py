@@ -126,6 +126,7 @@ class Trainer_Affine:
         self.init_training()
         self.model.train()
         self.classifier.train()
+        self.geo_classifier.train()
         n_class_corrected, total_classification_loss, total_samples = 0, 0, 0
         self.train_iter_loader = iter(self.train_loader)
         for iteration in range(self.args.iterations):
