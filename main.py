@@ -35,10 +35,10 @@ if __name__ == "__main__":
     with open(bash_args.config, "r") as inp:
         args = argparse.Namespace(**json.load(inp))
     os.environ["CUDA_VISIBLE_DEVICES"] = bash_args.gpu_idx
-    # fix_random_seed(args.seed_value)
+    fix_random_seed(args.seed_value)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     trainer = algorithms_map[args.algorithm](args, device, bash_args.exp_idx)
-    trainer.train()
+    # trainer.train()
     trainer.test()
-    trainer.save_plot()
+    # trainer.save_plot()
     print("Finished!")

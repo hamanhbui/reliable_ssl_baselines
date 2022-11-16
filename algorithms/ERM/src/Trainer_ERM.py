@@ -217,11 +217,14 @@ class Trainer_ERM:
                 batch_size=self.args.batch_size,
                 shuffle=True,
             )
+            # outputs, outlabels = [], []
             n_class_corrected, total_ece, total_nll = 0, 0, 0
             with torch.no_grad():
                 for iteration, (samples, labels) in enumerate(self.test_loader):
                     samples, labels = samples.to(self.device), labels.to(self.device)
                     predicted_classes = self.classifier(self.model(samples))
+                    # outputs += predicted_classes.tolist()
+                    # outlabels += labels.tolist()
                     total_nll += self.criterion(predicted_classes, labels).item()
                     predicted_softmaxs = self.nn_softmax(predicted_classes)
                     total_ece += multiclass_calibration_error(predicted_softmaxs, labels, num_classes=10, n_bins=10, norm='l1')
@@ -242,7 +245,15 @@ class Trainer_ERM:
             sheet.write(0, i, test_acc)
             sheet.write(1, i, test_ece)
             sheet.write(2, i, test_nll)
-        self.wb.save('xlwt example.xls')
+            # outputs = torch.Tensor(outputs)
+            # outlabels = torch.Tensor(outlabels)
+            # with open("outputs.pkl", "wb") as fp:
+            #     pickle.dump(outputs, fp)
+            # with open("labels.pkl", "wb") as fp:
+            #     pickle.dump(outlabels, fp)
+            # print(outputs.shape)
+            # quit()
+        self.wb.save(self.args.algorithm + "_" + self.args.exp_name + "_" + self.exp_idx + '.xls')
 
     def save_plot(self):
         checkpoint = torch.load(self.checkpoint_name + ".pt")

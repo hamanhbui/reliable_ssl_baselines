@@ -250,7 +250,7 @@ class Trainer_Context:
             sheet.write(0, i, test_acc)
             sheet.write(1, i, test_ece)
             sheet.write(2, i, test_nll)
-        self.wb.save('xlwt example.xls')
+        self.wb.save(self.args.algorithm + "_" + self.args.exp_name + "_" + self.exp_idx + '.xls')
 
     def save_plot(self):
         checkpoint = torch.load(self.checkpoint_name + ".pt")
