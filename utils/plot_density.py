@@ -6,28 +6,33 @@ import scipy.stats
 import seaborn as sns
 from scipy.stats import wasserstein_distance
 
-with open("../algorithms/ERM/results/plots/CIFAR10_1/te_entropies.pkl", "rb") as fp:
-    test_ERM = pickle.load(fp)
-with open("../algorithms/Affine/results/plots/CIFAR10_1/te_entropies.pkl", "rb") as fp:
-    test_Affine = pickle.load(fp)
-# with open("../algorithms/Context/results/plots/CIFAR10_1/te_entropies.pkl", "rb") as fp:
-#     test_Context = pickle.load(fp)
-with open("../algorithms/Jigsaw/results/plots/CIFAR10_1/te_entropies.pkl", "rb") as fp:
-    test_Jigsaw = pickle.load(fp)
-with open("../algorithms/Rotation/results/plots/CIFAR10_1/te_entropies.pkl", "rb") as fp:
-    test_Rotation = pickle.load(fp)
+def draw_plot(method, color):
+    with open("utils/out/"+method+"/iid/te_entropies.pkl", "rb") as fp:
+        iid_entropies = pickle.load(fp)
+    with open("utils/out/"+method+"/skew/te_entropies.pkl", "rb") as fp:
+        skew_entropies = pickle.load(fp)
+    with open("utils/out/"+method+"/ood/te_entropies.pkl", "rb") as fp:
+        ood_entropies = pickle.load(fp)
 
-# # seaborn histogram
-plt.xlabel("Predictive Entropy")
-sns.kdeplot(test_ERM, label="ERM")
-sns.kdeplot(test_Affine, label="Affine")
-# sns.kdeplot(test_Context, label="Context")
-sns.kdeplot(test_Jigsaw, label="Jigsaw")
-sns.kdeplot(test_Rotation, label="Rotation")
-plt.title("Out of distribution - CIFAR10", size=20)
+    # # seaborn histogram
+    plt.xlabel("Predictive Entropy")
+    plt.xlim(-0.2, 2)
+    plt.ylim(0, 15)
+    sns.kdeplot(iid_entropies,color=color, label="iid")
+    sns.kdeplot(skew_entropies,color=color, label="skew", linestyle="-.")
+    sns.kdeplot(ood_entropies,color=color, label="ood", linestyle="dotted")
+    plt.title(method, size=15)
 
-plt.legend()
-plt.savefig("predictive_entropy.png")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("utils/out/"+method+"/"+method+"_predictive_entropy.pdf")
+
+# draw_plot("ERM", "tab:blue")
+# draw_plot("Context", "tab:orange")
+# draw_plot("Rotation", "tab:green")
+# draw_plot("Affine", "tab:red")
+draw_plot("Jigsaw", "tab:purple")
+
 
 # with open("../algorithms/VAE/results/plots/MNIST_5/tr_nlls.pkl", "rb") as fp:
 #     train_NLL = pickle.load(fp)

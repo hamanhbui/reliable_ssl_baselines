@@ -38,7 +38,7 @@ def calculate_ece(logits, labels, n_bins=10):
             ece += torch.abs(avg_confidence_in_bin - accuracy_in_bin) * prop_in_bin
     return ece.item()
 
-def make_model_diagrams(outputs, labels, n_bins=10):
+def make_model_diagrams(outputs, labels, n_bins=15):
     """
     outputs - a torch tensor (size n x num_classes) with the outputs from the final linear layer
     - NOT the softmaxes
@@ -63,28 +63,33 @@ def make_model_diagrams(outputs, labels, n_bins=10):
     confs = plt.bar(bin_centers, bin_corrects, width=width, alpha=0.1, ec='black')
     gaps = plt.bar(bin_centers, (bin_scores - bin_corrects), bottom=bin_corrects, color=[1, 0.7, 0.7], alpha=0.5, width=width, hatch='//', edgecolor='r')
     plt.plot([0, 1], [0, 1], '--', color='gray')
-    plt.legend([confs, gaps], ['Outputs', 'Gap'], loc='best', fontsize='small')
+    plt.legend([confs, gaps], ['Outputs', 'Gap'], loc='best')
 
     ece = calculate_ece(outputs, labels)
 
-    # Clean up
-    bbox_props = dict(boxstyle="round", fc="lightgrey", ec="brown", lw=2)
-    plt.text(0.2, 0.85, "ECE: {:.2f}".format(ece), ha="center", va="center", size=20, weight = 'bold', bbox=bbox_props)
-
-    plt.title("ERM Reliability Diagram on OOD", size=20)
-    plt.ylabel("Accuracy (P[y])",  size=18)
-    plt.xlabel("Confidence",  size=18)
-    plt.xlim(0,1)
-    plt.ylim(0,1)
     return ece
     
-with open("../outputs.pkl", "rb") as fp:
+method = "Jigsaw"
+test_type = "OOD"
+
+with open("utils/out/"+method+"/"+test_type.lower()+"/outputs.pkl", "rb") as fp:
     outputs = pickle.load(fp)
 
-with open("../labels.pkl", "rb") as fp:
+with open("utils/out/"+method+"/"+test_type.lower()+"/labels.pkl", "rb") as fp:
     labels = pickle.load(fp)
 
 labels = labels.int()
 outputs = outputs.float()
-make_model_diagrams(outputs, labels)
-plt.savefig("out.png")
+ece = make_model_diagrams(outputs, labels)
+
+# Clean up
+bbox_props = dict(boxstyle="round", fc="lightgrey", ec="brown", lw=2)
+plt.text(0.2, 0.85, "ECE: {:.2f}".format(ece), ha="center", va="center", size=30, weight = 'bold', bbox=bbox_props)
+
+plt.title(method + "-" + test_type.lower(), size=30)
+plt.ylabel("Accuracy (P[y])",  size=30)
+plt.xlabel("Confidence",  size=30)
+plt.xlim(0,1)
+plt.ylim(0,1)
+plt.tight_layout()
+plt.savefig("utils/out/"+method+"/"+test_type.lower()+"/"+method.lower()+"_"+test_type.lower()+"_ece.pdf")
