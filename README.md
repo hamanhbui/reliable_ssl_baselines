@@ -12,7 +12,7 @@
 ## <a name="intro"></a> Introduction
 ![framework](gallery/framework.png)
 
-This repository contains the implementation of "Benchmark for Uncertainty & Robustness in Self-Supervised Learning", including a comparison on: ERM, Context Prediction, Rotation Prediction, Geometric Transformation Prediction, and Jigsaw Puzzle.
+This repository contains the implementation of "Benchmark for Uncertainty & Robustness in Self-Supervised Learning", including a comparison of ERM, Context Prediction, Rotation Prediction, Geometric Transformation Prediction, and Jigsaw Puzzle.
 
 ## <a name="guideline"></a> Guideline
 ### <a name="prepare"></a> To prepare:
