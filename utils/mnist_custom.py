@@ -37,7 +37,7 @@ class MNISTDataloader(keras.utils.Sequence):
 		return len(self.target_img_paths) // self.batch_size
 
 	def get_image(self, sample_path):
-		img = Image.open("/home/ubuntu/datasets/MNIST/raw/" + sample_path)
+		img = Image.open("datasets/MNIST/raw/" + sample_path)
 		return img
 
 	def __getitem__(self, idx):
@@ -53,8 +53,8 @@ class MNISTDataloader(keras.utils.Sequence):
 		return x, y
 
 if __name__ == "__main__":
-	tr_sample_paths, tr_class_labels, val_sample_paths, val_class_labels = set_tr_val_samples_labels("/home/ubuntu/datasets/Rotated_MNIST/metadata/train_kfold.txt", 0.2)
-	te_sample_paths, te_class_labels = set_test_samples_labels("/home/ubuntu/datasets/Rotated_MNIST/metadata/test_kfold.txt")
+	tr_sample_paths, tr_class_labels, val_sample_paths, val_class_labels = set_tr_val_samples_labels("datasets/Rotated_MNIST/metadata/train_kfold.txt", 0.2)
+	te_sample_paths, te_class_labels = set_test_samples_labels("datasets/Rotated_MNIST/metadata/test_kfold.txt")
 	train_set = MNISTDataloader(
 		32, (28, 28), tr_sample_paths, tr_class_labels
 	)

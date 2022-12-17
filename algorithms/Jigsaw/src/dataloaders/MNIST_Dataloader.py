@@ -36,7 +36,7 @@ class MNISTDataloader(Dataset):
         return tile
 
     def retrieve_permutations(self, classes):
-        all_perm = np.load('/home/ubuntu/reliable_ssl_baselines/algorithms/Jigsaw/src/dataloaders/permutations_%d.npy' % (classes))
+        all_perm = np.load('algorithms/Jigsaw/src/dataloaders/permutations_%d.npy' % (classes))
         return all_perm
 
     def __getitem__(self, index):

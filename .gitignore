@@ -3,5 +3,5 @@
 *.0
 *.pkl
 *.pyc
-# *.png
+*.png
 utils/out/*
