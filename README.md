@@ -7,6 +7,7 @@
     - [To prepare](#prepare)
     - [To run experiments](#experiments)
     - [To plot figures](#plot)
+    - [To download checkpoints](#checkpoints)
 
 ## <a name="intro"></a> Introduction
 ![framework](gallery/framework.png)
@@ -26,7 +27,7 @@ bash setup.sh
 ```
 
 ### <a name="experiments"></a> To run experiments:
-Run with ten different seeds:
+Run with 10 different seeds:
 ```sh
 for i in {1..10}; do
      taskset -c <cpu_index> python main.py --config <config_path> --exp_idx $i --gpu_idx <gpu_index>
@@ -41,7 +42,7 @@ where the parameters are the following:
 
 <img src="gallery/results.png" width="50%" height="50%">
 
-### <a name="plot"></a> To plot feature representations:
+### <a name="plot"></a> To plot figures:
 
 ```sh
 python utils/ebar_plot.py
@@ -54,6 +55,11 @@ python utils/reliability_diagram.py
 <img src="gallery/err_bar.png" width="50%" height="50%">
 <img src="gallery/box_plot.png" width="50%" height="50%">
 <img src="gallery/reliability_diagram.png" width="50%" height="50%">
+
+### <a name="plot"></a> To download checkpoints:
+
+**Note:** All checkpoints are stored at [this google drive folder](https://drive.google.com/drive/folders/1Goy76FCp8NmlQiwAuQdj7HETOy85jLMa?usp=share_link).
+**Note:** All results are recorded at [this google excel](https://docs.google.com/spreadsheets/d/1QdYtDm_GA76hfpso8RoAeysn3Yg3WPeJ91VXahhoPgM/edit?usp=share_link).
 
 ## License
 
