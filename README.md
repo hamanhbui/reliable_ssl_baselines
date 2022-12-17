@@ -12,7 +12,7 @@
 ## <a name="intro"></a> Introduction
 ![framework](gallery/framework.png)
 
-This repository contains the implementation of 
+This repository contains the implementation of Benchmark for Uncertainty & Robustness in Self-Supervised Learning, including a comparison on: ERM, Context Prediction, Rotation Prediction, Geometric Transformation Prediction, and Jigsaw Puzzle.
 
 ## <a name="guideline"></a> Guideline
 ### <a name="prepare"></a> To prepare:
@@ -59,6 +59,7 @@ python utils/reliability_diagram.py
 ### <a name="plot"></a> To download checkpoints:
 
 **Note:** All checkpoints are stored at [this google drive folder](https://drive.google.com/drive/folders/1Goy76FCp8NmlQiwAuQdj7HETOy85jLMa?usp=share_link).
+
 **Note:** All results are recorded at [this google excel](https://docs.google.com/spreadsheets/d/1QdYtDm_GA76hfpso8RoAeysn3Yg3WPeJ91VXahhoPgM/edit?usp=share_link).
 
 ## License
