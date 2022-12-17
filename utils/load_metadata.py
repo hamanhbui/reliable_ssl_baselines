@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def set_tr_val_samples_labels(meta_filename, val_size):
     column_names = ["filename", "class_label"]
     data_frame = pd.read_csv(meta_filename, header=None, names=column_names, sep="\s+")

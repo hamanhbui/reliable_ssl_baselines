@@ -9,16 +9,17 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import xlwt
 from algorithms.Rotation.src.dataloaders import dataloader_factory
 from algorithms.Rotation.src.models import model_factory
 from scipy.stats import entropy
+from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from utils.load_metadata import set_tr_val_samples_labels, set_test_samples_labels
 from torchmetrics.functional.classification import multiclass_calibration_error
-from torch.optim.lr_scheduler import MultiStepLR
-import xlwt
+from utils.load_metadata import set_test_samples_labels, set_tr_val_samples_labels
 from xlwt import Workbook
+
 
 class Classifier(nn.Module):
     def __init__(self, feature_dim, classes):
@@ -107,7 +108,9 @@ class Trainer_Rotation:
                 batch_size=self.args.batch_size,
                 shuffle=True,
             )
-        optimizer_params = list(self.model.parameters()) + list(self.classifier.parameters()) + list(self.rot_classifier.parameters())
+        optimizer_params = (
+            list(self.model.parameters()) + list(self.classifier.parameters()) + list(self.rot_classifier.parameters())
+        )
         self.optimizer = torch.optim.SGD(optimizer_params, lr=self.args.learning_rate, momentum=0.9, nesterov=True)
         self.scheduler = MultiStepLR(self.optimizer, milestones=self.args.decay_interations, gamma=0.2)
         self.val_loss_min = np.Inf
@@ -164,7 +167,9 @@ class Trainer_Rotation:
                 samples, labels = samples.to(self.device), labels.to(self.device)
                 predicted_classes = self.classifier(self.model(samples))
                 predicted_softmaxs = self.nn_softmax(predicted_classes)
-                total_ece += multiclass_calibration_error(predicted_softmaxs, labels, num_classes=10, n_bins=10, norm='l1')
+                total_ece += multiclass_calibration_error(
+                    predicted_softmaxs, labels, num_classes=10, n_bins=10, norm="l1"
+                )
                 classification_loss = self.criterion(predicted_classes, labels)
                 total_classification_loss += classification_loss.item()
                 _, predicted_classes = torch.max(predicted_classes, 1)
@@ -230,14 +235,17 @@ class Trainer_Rotation:
                     predicted_classes = self.classifier(self.model(samples))
                     total_nll += self.criterion(predicted_classes, labels).item()
                     predicted_softmaxs = self.nn_softmax(predicted_classes)
-                    total_ece += multiclass_calibration_error(predicted_softmaxs, labels, num_classes=10, n_bins=10, norm='l1')
+                    total_ece += multiclass_calibration_error(
+                        predicted_softmaxs, labels, num_classes=10, n_bins=10, norm="l1"
+                    )
                     _, predicted_classes = torch.max(predicted_classes, 1)
                     n_class_corrected += (predicted_classes == labels).sum().item()
-            test_acc =  100.0 * n_class_corrected / len(self.test_loader.dataset)
+            test_acc = 100.0 * n_class_corrected / len(self.test_loader.dataset)
             test_ece = round(total_ece.cpu().detach().numpy() / len(self.test_loader), 6)
             test_nll = round(total_nll / len(self.test_loader), 6)
             print(
-                test_path + "\tTest set: Accuracy: {}/{} ({:.2f}%)\tECE: {:.6f}\tNLL: {:.6f}".format(
+                test_path
+                + "\tTest set: Accuracy: {}/{} ({:.2f}%)\tECE: {:.6f}\tNLL: {:.6f}".format(
                     n_class_corrected,
                     len(self.test_loader.dataset),
                     test_acc,
@@ -248,7 +256,7 @@ class Trainer_Rotation:
             sheet.write(0, i, test_acc)
             sheet.write(1, i, test_ece)
             sheet.write(2, i, test_nll)
-        self.wb.save(self.args.algorithm + "_" + self.args.exp_name + "_" + self.exp_idx + '.xls')
+        self.wb.save(self.args.algorithm + "_" + self.args.exp_name + "_" + self.exp_idx + ".xls")
 
     def save_plot(self):
         checkpoint = torch.load(self.checkpoint_name + ".pt")
@@ -285,7 +293,7 @@ class Trainer_Rotation:
                 te_nlls.append(bpd)
                 Z_test += z.tolist()
                 Y_test += labels.tolist()
-                
+
         if not os.path.exists(self.plot_dir):
             os.mkdir(self.plot_dir)
         with open(self.plot_dir + "Z_train.pkl", "wb") as fp:

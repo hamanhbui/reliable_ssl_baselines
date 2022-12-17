@@ -1,8 +1,10 @@
-import torch
-import numpy as np
-from matplotlib import pyplot as plt
 import pickle
+
+import numpy as np
+import torch
 import torch.nn.functional as F
+from matplotlib import pyplot as plt
+
 
 def calculate_ece(logits, labels, n_bins=10):
     """
@@ -38,6 +40,7 @@ def calculate_ece(logits, labels, n_bins=10):
             ece += torch.abs(avg_confidence_in_bin - accuracy_in_bin) * prop_in_bin
     return ece.item()
 
+
 def make_model_diagrams(outputs, labels, n_bins=15):
     """
     outputs - a torch tensor (size n x num_classes) with the outputs from the final linear layer
@@ -47,35 +50,47 @@ def make_model_diagrams(outputs, labels, n_bins=15):
     softmaxes = torch.nn.functional.softmax(outputs, 1)
     confidences, predictions = softmaxes.max(1)
     accuracies = torch.eq(predictions, labels)
-    overall_accuracy = (predictions==labels).sum().item()/len(labels)
-    
+    overall_accuracy = (predictions == labels).sum().item() / len(labels)
+
     # Reliability diagram
     bins = torch.linspace(0, 1, n_bins + 1)
     width = 1.0 / n_bins
     bin_centers = np.linspace(0, 1.0 - width, n_bins) + width / 2
-    bin_indices = [confidences.ge(bin_lower) * confidences.lt(bin_upper) for bin_lower, bin_upper in zip(bins[:-1], bins[1:])]
-    
-    bin_corrects = np.array([ torch.mean(accuracies[bin_index].float()) for bin_index in bin_indices])
-    bin_scores = np.array([ torch.mean(confidences[bin_index].float()) for bin_index in bin_indices])
-     
+    bin_indices = [
+        confidences.ge(bin_lower) * confidences.lt(bin_upper) for bin_lower, bin_upper in zip(bins[:-1], bins[1:])
+    ]
+
+    bin_corrects = np.array([torch.mean(accuracies[bin_index].float()) for bin_index in bin_indices])
+    bin_scores = np.array([torch.mean(confidences[bin_index].float()) for bin_index in bin_indices])
+
     plt.figure(0, figsize=(8, 8))
-    gap = (bin_scores - bin_corrects)
-    confs = plt.bar(bin_centers, bin_corrects, width=width, alpha=0.1, ec='black')
-    gaps = plt.bar(bin_centers, (bin_scores - bin_corrects), bottom=bin_corrects, color=[1, 0.7, 0.7], alpha=0.5, width=width, hatch='//', edgecolor='r')
-    plt.plot([0, 1], [0, 1], '--', color='gray')
-    plt.legend([confs, gaps], ['Outputs', 'Gap'], loc='best')
+    gap = bin_scores - bin_corrects
+    confs = plt.bar(bin_centers, bin_corrects, width=width, alpha=0.1, ec="black")
+    gaps = plt.bar(
+        bin_centers,
+        (bin_scores - bin_corrects),
+        bottom=bin_corrects,
+        color=[1, 0.7, 0.7],
+        alpha=0.5,
+        width=width,
+        hatch="//",
+        edgecolor="r",
+    )
+    plt.plot([0, 1], [0, 1], "--", color="gray")
+    plt.legend([confs, gaps], ["Outputs", "Gap"], loc="best")
 
     ece = calculate_ece(outputs, labels)
 
     return ece
-    
+
+
 method = "Jigsaw"
 test_type = "OOD"
 
-with open("utils/out/"+method+"/"+test_type.lower()+"/outputs.pkl", "rb") as fp:
+with open("utils/out/" + method + "/" + test_type.lower() + "/outputs.pkl", "rb") as fp:
     outputs = pickle.load(fp)
 
-with open("utils/out/"+method+"/"+test_type.lower()+"/labels.pkl", "rb") as fp:
+with open("utils/out/" + method + "/" + test_type.lower() + "/labels.pkl", "rb") as fp:
     labels = pickle.load(fp)
 
 labels = labels.int()
@@ -84,12 +99,14 @@ ece = make_model_diagrams(outputs, labels)
 
 # Clean up
 bbox_props = dict(boxstyle="round", fc="lightgrey", ec="brown", lw=2)
-plt.text(0.2, 0.85, "ECE: {:.2f}".format(ece), ha="center", va="center", size=30, weight = 'bold', bbox=bbox_props)
+plt.text(0.2, 0.85, "ECE: {:.2f}".format(ece), ha="center", va="center", size=30, weight="bold", bbox=bbox_props)
 
 plt.title(method + "-" + test_type.lower(), size=30)
-plt.ylabel("Accuracy (P[y])",  size=30)
-plt.xlabel("Confidence",  size=30)
-plt.xlim(0,1)
-plt.ylim(0,1)
+plt.ylabel("Accuracy (P[y])", size=30)
+plt.xlabel("Confidence", size=30)
+plt.xlim(0, 1)
+plt.ylim(0, 1)
 plt.tight_layout()
-plt.savefig("utils/out/"+method+"/"+test_type.lower()+"/"+method.lower()+"_"+test_type.lower()+"_ece.pdf")
+plt.savefig(
+    "utils/out/" + method + "/" + test_type.lower() + "/" + method.lower() + "_" + test_type.lower() + "_ece.pdf"
+)

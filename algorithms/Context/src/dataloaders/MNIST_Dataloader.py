@@ -1,21 +1,23 @@
+from random import random, sample
+
+import numpy as np
 import torch
+import torchvision
 import torchvision.transforms as transforms
 from PIL import Image
 from torch.utils.data import Dataset
-import numpy as np
-import torchvision
-from random import sample, random
+
 
 class MNISTDataloader(Dataset):
     def __init__(self, path, sample_paths, class_labels):
         self.grid_size = 3
+
         def make_grid(x):
             return torchvision.utils.make_grid(x, self.grid_size, padding=0)
+
         self.returnFunc = make_grid
-        self.image_transformer = transforms.Compose(
-            [transforms.Resize((33, 33))])
-        self.tile_transformer = transforms.Compose(
-            [transforms.ToTensor()])
+        self.image_transformer = transforms.Compose([transforms.Resize((33, 33))])
+        self.tile_transformer = transforms.Compose([transforms.ToTensor()])
         self.path = path
         self.sample_paths, self.class_labels = sample_paths, class_labels
 
@@ -37,7 +39,7 @@ class MNISTDataloader(Dataset):
     def __getitem__(self, index):
         sample = self.get_image(self.path + self.sample_paths[index])
 
-        n_grids = self.grid_size ** 2
+        n_grids = self.grid_size**2
         tiles = [None] * n_grids
         for n in range(n_grids):
             tiles[n] = self.get_tile(sample, n)

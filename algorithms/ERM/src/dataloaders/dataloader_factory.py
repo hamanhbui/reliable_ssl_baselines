@@ -1,5 +1,5 @@
-from algorithms.ERM.src.dataloaders.MNIST_Dataloader import MNIST_Test_Dataloader, MNISTDataloader
 from algorithms.ERM.src.dataloaders.CIFAR10_Dataloader import CIFAR10_Test_Dataloader, CIFAR10Dataloader
+from algorithms.ERM.src.dataloaders.MNIST_Dataloader import MNIST_Test_Dataloader, MNISTDataloader
 
 
 train_dataloaders_map = {"MNIST": MNISTDataloader, "CIFAR10": CIFAR10Dataloader}

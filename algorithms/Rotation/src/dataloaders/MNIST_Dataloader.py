@@ -1,16 +1,15 @@
+from random import random, sample
+
+import numpy as np
 import torchvision.transforms as transforms
 from PIL import Image
 from torch.utils.data import Dataset
-import numpy as np
-from random import sample, random
 
 
 class MNISTDataloader(Dataset):
     def __init__(self, path, sample_paths, class_labels):
-        self.image_transformer = transforms.Compose(
-            [transforms.Resize((32, 32))])
-        self.tile_transformer = transforms.Compose(
-            [transforms.ToTensor()])
+        self.image_transformer = transforms.Compose([transforms.Resize((32, 32))])
+        self.tile_transformer = transforms.Compose([transforms.ToTensor()])
         self.path = path
         self.sample_paths, self.class_labels = sample_paths, class_labels
         self.trans_hyp = [0, 45, 90, 135, 180, 225, 270, 315]
@@ -29,9 +28,9 @@ class MNISTDataloader(Dataset):
         if 0.9 > random():
             ptrainy = 0
         else:
-            sample  = transforms.functional.rotate(sample, angle = self.trans_hyp[rot_index])
+            sample = transforms.functional.rotate(sample, angle=self.trans_hyp[rot_index])
             ptrainy = rot_index
-        
+
         class_label = self.class_labels[index]
         return self.tile_transformer(sample), class_label, ptrainy
 
