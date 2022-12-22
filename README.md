@@ -38,6 +38,8 @@ where the parameters are the following:
 - `<config_path>`: path stored configuration hyper-parameters. E.g., `<config_path> = "algorithms/Jigsaw/configs/CIFAR10.json"`
 - `<gpu_index>`: GPU index. E.g., `<gpu_index> = "0"`
 
+BERT-GPT experiments are provided in notebooks in "algorithms/BERT-GPT2/"
+
 **Note:** Select different settings by editing in `/configs/..json`, logging results are stored in `/results/logs/`
 
 <img src="gallery/results.png" width="50%" height="50%">
