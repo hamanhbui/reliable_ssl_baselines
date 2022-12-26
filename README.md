@@ -55,7 +55,7 @@ BERT-GPT2 experiments are provided in notebooks in `"algorithms/BERT-GPT2/"`
 
 **Note:** Select different settings by editing in `/configs/..json`, logging results are stored in `/results/logs/`
 
-<img src="gallery/results.png" width="50%" height="50%">
+<img src="gallery/results.png" width="100%" height="100%">
 
 ### <a name="plot"></a> To plot figures:
 
@@ -67,9 +67,9 @@ python utils/plot_density_methods.py
 python utils/reliability_diagram.py
 ```
 
-<img src="gallery/err_bar.png" width="50%" height="50%">
-<img src="gallery/box_plot.png" width="50%" height="50%">
-<img src="gallery/reliability_diagram.png" width="50%" height="50%">
+<img src="gallery/err_bar.png" width="100%" height="100%">
+<img src="gallery/box_plot.png" width="100%" height="100%">
+<img src="gallery/reliability_diagram.png" width="100%" height="100%">
 
 ### <a name="plot"></a> To download checkpoints:
 
