@@ -14,6 +14,19 @@
 
 This repository contains the implementation of "Benchmark for Uncertainty & Robustness in Self-Supervised Learning", including a comparison of ERM, Context Prediction, Rotation Prediction, Geometric Transformation Prediction, and Jigsaw Puzzle.
 
+Details of the model and experimental results can be found in our following [arXiv paper](https://arxiv.org/abs/2212.12411):
+```bibtex
+@misc{bui2022benchmark,
+      title={Benchmark for Uncertainty & Robustness in Self-Supervised Learning}, 
+      author={Ha Manh Bui and Iliana Maifeld-Carucci},
+      year={2022},
+      eprint={2212.12411},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
+**Please CITE** our paper if you find it useful in your research.
+
 ## <a name="guideline"></a> Guideline
 ### <a name="prepare"></a> To prepare:
 Install prerequisite packages:
